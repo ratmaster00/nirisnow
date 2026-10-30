@@ -64,7 +64,7 @@ class Snow(Gtk.Window):
                 self.flakes[i] = self.flake()
         p = self.pile
         self.pile = [p[0]] + [(p[i-1] + 2*p[i] + p[i+1]) / 4
-                              for i in range(1, self.w - 1)] + [p[-1]]
+                            for i in range(1, self.w - 1)] + [p[-1]]
         self.queue_draw()
         return True
 
@@ -79,8 +79,9 @@ class Snow(Gtk.Window):
         cr.set_source_rgba(0, 0, 0, 0)
         cr.paint()
         cr.set_operator(cairo.OPERATOR_OVER)
+        
+        # Draw the snow pile at the bottom
         cr.set_source_rgba(1, 1, 1, 0.85)
-
         cr.move_to(0, self.h)
         for i in range(0, self.w, 3):
             cr.line_to(i, self.h - self.pile[i])
@@ -88,7 +89,13 @@ class Snow(Gtk.Window):
         cr.line_to(self.w, self.h)
         cr.fill()
 
+        # Draw fuzzy, blurred snowflakes using radial gradients
         for x, y, r, *_ in self.flakes:
+            pat = cairo.RadialGradient(x, y, 0, x, y, r)
+            pat.add_color_stop_rgba(0.0, 1, 1, 1, 0.85)  # Opaque center
+            pat.add_color_stop_rgba(1.0, 1, 1, 1, 0.0)   # Fades out to transparent
+            
+            cr.set_source(pat)
             cr.arc(x, y, r, 0, 6.2832)
             cr.fill()
 
